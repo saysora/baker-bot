@@ -22,7 +22,7 @@ const commands = [
   `\`${prefix}recipes\` - List all cookies that can be baked`,
   `\`${prefix}recipe <cookie alias>\` - List the necessary ingredients for the cookie`,
   `\`${prefix}pantry\` - View all your current ingredients and baked cookies`,
-  `\`${prefix}gather\` - Randomly gather ingredients necessary for baking`,
+  `\`${prefix}gather\` - Randomly gather ingredients necessary for baking (can only be used at least 15 minutes after the last gather command)`,
   `\`${prefix}bake <cookie alias>\` - Bakes a cookie provided you have the ingredients`,
   `\`${prefix}lb\` - Shows the current baker leaderboard`,
 ];
