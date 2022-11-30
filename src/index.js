@@ -119,7 +119,7 @@ const useIngredients = (blueprint, theList) => {
 
 const cookieEmbed = (cookie) => {
   const embed = {
-    title: `${cookie.name} Recipe`,
+    title: `🍪 ${cookie.name} Recipe 🍪`,
     thumbnail: {
       url: cookie.image,
     },
@@ -173,6 +173,79 @@ client.on("ChatMessageCreated", async (data) => {
   if (message.createdBy == process.env.BOTUSERID) return;
 
   if (message.channelId !== process.env.GAMECHANNEL) return;
+
+  if (message.content.startsWith("/lb")) {
+    const players = await baker.find().sort([["score", "desc"]]);
+
+    let args = message.content.split(" ");
+
+    args.shift();
+
+    if (args.length > 0 && isNaN(parseInt(args[0]))) {
+      return await g.sendMsg(message.channelId, {
+        content: "The page must be a number",
+        isPrivate: true,
+        replyMessageIds: [message.id],
+      });
+    }
+
+    let page = args.length !== 0 ? parseInt(args[0]) : 1;
+
+    let boardpage = paginate(players, 10, page);
+
+    let pages = players.length > 10 ? Math.ceil(players.length / 10) : 1;
+
+    if (page > pages || page < 1) {
+      page = 1;
+      boardpage = paginate(players, 10, page);
+    }
+
+    if (players.length % 10) {
+      pages = Math.ceil(pages);
+    }
+
+    const index = players.findIndex((player) => player.id == message.createdBy);
+
+    let askerIndex = index >= 0 ? "#" + (index + 1) + "." : "";
+
+    const embed = {
+      title: `🍪 Champions`,
+      color: constants.board,
+      description: `\n`,
+      footer: {
+        text: `${page}/${pages} • You are ${askerIndex}`,
+      },
+    };
+
+    boardpage.forEach((player, index) => {
+      var betterIndex = page > 1 ? index + 10 * (page - 1) + 1 : index + 1;
+      embed.description += `**${betterIndex}.** <@${player.id}> - ${player.score} 🍪\n`;
+    });
+
+    return await g.sendMsg(message.channelId, {
+      embeds: [embed],
+      isSilent: true,
+    });
+  }
+
+  if (
+    moment(new Date()).isSameOrAfter(process.env.ENDDATE) &&
+    message.content.startsWith(prefix)
+  ) {
+    return g.sendMsg(message.channelId, {
+      embeds: [
+        {
+          title: "The baking is done, Kupo",
+          description:
+            "That's all the baking for this season. I'll definitely be bake again though!",
+          color: constants.error,
+          thumbnail: {
+            url: botUser.avatar,
+          },
+        },
+      ],
+    });
+  }
 
   if (message.content == "/begin") {
     let theBaker = await baker.findOne({ id: message.createdBy });
@@ -351,7 +424,7 @@ client.on("ChatMessageCreated", async (data) => {
     }
 
     const embed = {
-      title: "List of cookies",
+      title: "List of 🍪",
       description: cookieString,
       color: constants.list,
       footer: {
@@ -469,6 +542,9 @@ client.on("ChatMessageCreated", async (data) => {
           thumbnail: {
             url: desCookie.image,
           },
+          footer: {
+            text: `Your 🍪 score is now ${player.score}`,
+          },
         },
       ],
     });
@@ -499,7 +575,7 @@ client.on("ChatMessageCreated", async (data) => {
       fields: [],
     };
 
-    embed.description += "**Baked Cookies:**\n";
+    embed.description += "**Baked 🍪:**\n";
 
     const playerCookies = _.pick(player.cookies, constants.cookies);
     for (const c in playerCookies) {
@@ -508,7 +584,7 @@ client.on("ChatMessageCreated", async (data) => {
       }**\n`;
     }
 
-    embed.description += `\nTotal Value: **${player.score}**\n\n`;
+    embed.description += `\nTotal 🍪 Value: **${player.score}**\n\n`;
 
     embed.description += "\n**Ingredients:**\n";
 
@@ -541,59 +617,5 @@ client.on("ChatMessageCreated", async (data) => {
     };
 
     await player.save();
-  }
-
-  if (message.content.startsWith("/lb")) {
-    const players = await baker.find().sort([["score", "desc"]]);
-
-    let args = message.content.split(" ");
-
-    args.shift();
-
-    if (args.length > 0 && isNaN(parseInt(args[0]))) {
-      return await g.sendMsg(message.channelId, {
-        content: "The page must be a number",
-        isPrivate: true,
-        replyMessageIds: [message.id],
-      });
-    }
-
-    let page = args.length !== 0 ? parseInt(args[0]) : 1;
-
-    let boardpage = paginate(players, 10, page);
-
-    let pages = players.length > 10 ? Math.ceil(players.length / 10) : 1;
-
-    if (page > pages || page < 1) {
-      page = 1;
-      boardpage = paginate(players, 10, page);
-    }
-
-    if (players.length % 10) {
-      pages = Math.ceil(pages);
-    }
-
-    const index = players.findIndex((player) => player.id == message.createdBy);
-
-    let askerIndex = index >= 0 ? "#" + (index + 1) + "." : "";
-
-    const embed = {
-      title: `Top Bakers`,
-      color: constants.board,
-      description: `Who will be the baking champion?\n\n`,
-      footer: {
-        text: `${page}/${pages} • You are ${askerIndex}`,
-      },
-    };
-
-    boardpage.forEach((player, index) => {
-      var betterIndex = page > 1 ? index + 10 * (page - 1) + 1 : index + 1;
-      embed.description += `**${betterIndex}.** <@${player.id}> - ${player.score}\n`;
-    });
-
-    return await g.sendMsg(message.channelId, {
-      embeds: [embed],
-      isSilent: true,
-    });
   }
 });
