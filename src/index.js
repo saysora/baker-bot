@@ -242,9 +242,9 @@ client.on("ChatMessageCreated", async (data) => {
     let askerIndex = index >= 0 ? "#" + (index + 1) + "." : "";
 
     const embed = {
-      title: `🍪 Champions`,
+      title: `🍪 Cookie Champions 🍪`,
       color: constants.board,
-      description: `\n`,
+      description: ``,
       footer: {
         text: `${page}/${pages} • You are ${askerIndex}`,
       },
