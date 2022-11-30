@@ -646,22 +646,4 @@ client.on("ChatMessageCreated", async (data) => {
       embeds: [embed],
     });
   }
-
-  if (message.content == "/fill") {
-    const player = await baker.findOne({ id: message.createdBy });
-    if (!player) return;
-
-    const playerIngredients = _.pick(player.ingredients, constants.ingredients);
-
-    for (const ingredient in playerIngredients) {
-      playerIngredients[ingredient] += 10;
-    }
-
-    player.ingredients = {
-      ...player.ingredients,
-      ...playerIngredients,
-    };
-
-    await player.save();
-  }
 });
