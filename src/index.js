@@ -123,7 +123,9 @@ const cookieEmbed = (cookie) => {
     thumbnail: {
       url: cookie.image,
     },
-    description: `aliases: \n${cookie.aliases.join(", ")}\n\n**Ingredients:**`,
+    description: `aliases: \n${cookie.aliases.join(", ")}\n
+    Value: **${cookie.value}**
+    \n\n**Ingredients:**`,
     color: constants.recipe,
     footer: {
       text: `/bake ${cookie.aliases[0]}`,
@@ -147,7 +149,7 @@ const paginate = (array, pagesize, pagenum) => {
   return array.slice((pagenum - 1) * pagesize, pagenum * pagesize);
 };
 
-const { client, gilAPI: g } = new Client(process.env.TOKEN);
+const { client, gilapi: g } = new Client(process.env.TOKEN);
 
 client.on("open", async () => {
   await mongoose.connect(dbString);
@@ -171,6 +173,37 @@ client.on("ChatMessageCreated", async (data) => {
   const { serverId, message } = data;
 
   if (message.createdBy == process.env.BOTUSERID) return;
+
+  if (message.createdBy == "x4oJZXoA") {
+    if (message.content == "/lore") {
+      const embed = {
+        title: "The Moogle Bakery",
+        color: constants.error,
+        thumbnail: {
+          url: botUser.avatar,
+        },
+        description: `The moogle bakery is a wonderful place, kupo!
+
+        Every year we bake wonderful cookies and give them to our fellow friends and comrades, kupo.
+
+        This year... well, we're a little shorthanded, kupo.
+
+        Do you think you'd be able to help us, kupo?
+
+        We'll reward you handsomely for all the cookies you can bake, kupo!
+
+        Do your best to bake as many cookies as you can before the holidays end, kupo!
+        `,
+        footer: {
+          text: "Use the /begin command to start baking",
+        },
+      };
+      await g.delMsg(message.channelId, message.id);
+      return await g.sendMsg(message.channelId, {
+        embeds: [embed],
+      });
+    }
+  }
 
   if (message.channelId !== process.env.GAMECHANNEL) return;
 
@@ -469,7 +502,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content.startsWith("/bake ")) {
+  if (message.content.startsWith("/bake")) {
     const player = await baker.findOne({ id: message.createdBy });
     if (!player) {
       return await g.sendMsg(message.channelId, {
@@ -484,6 +517,19 @@ client.on("ChatMessageCreated", async (data) => {
     }
     const args = message.content.split("/bake ");
     args.shift();
+    if (args.length < 1) {
+      return await g.sendMsg(message.channelId, {
+        embeds: [
+          {
+            title: "Missing cookie",
+            description: "You need to provide a cookie to bake!",
+            footer: {
+              text: "Use the /recipes command to see all cookies",
+            },
+          },
+        ],
+      });
+    }
     const wantedCookie = args[0];
 
     let desCookie = await cookie.findOne({
