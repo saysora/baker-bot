@@ -1,14 +1,11 @@
 import { Client } from "gilapi";
+import { Database } from "./Database";
 import mongoose from "mongoose";
 import _ from "lodash";
 import { cookie } from "./db/Cookie";
 import { cookieSeed } from "./seed/CookieSeed";
 import { baker, baker } from "./db/Baker";
 import moment from "moment";
-
-const url = process.env.DBURL;
-const mongodb = process.env.DBNAME;
-const dbString = `mongodb://${url}/${mongodb}`;
 
 /* Constants */
 
@@ -149,11 +146,13 @@ const paginate = (array, pagesize, pagenum) => {
   return array.slice((pagenum - 1) * pagesize, pagenum * pagesize);
 };
 
+const db = new Database();
+
 const { client, gilapi: g } = new Client(process.env.TOKEN);
 
 client.on("open", async () => {
-  await mongoose.connect(dbString);
-
+  console.log("I am alive!");
+  db.connect();
   for (const c of cookieSeed) {
     const theCookie = await cookie.findOne({ id: c.id });
     if (theCookie) continue;
@@ -167,6 +166,11 @@ client.on("open", async () => {
   );
 
   botUser = member.user;
+});
+
+client.on("close", async () => {
+  client.reconnect();
+  db.disconnect();
 });
 
 client.on("ChatMessageCreated", async (data) => {
