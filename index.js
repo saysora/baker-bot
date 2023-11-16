@@ -1,10 +1,10 @@
 import _ from "lodash";
 import moment from "moment";
 import Client from "gilapi";
-import { Database } from "./Database.js";
-import { cookie } from "./db/Cookie.js";
+import { Database } from "./src/Database.js";
+import { cookie } from "./src/db/Cookie.js";
 //import { cookieSeed } from "./seed/CookieSeed.js";
-import { baker } from "./db/Baker.js";
+import { baker } from "./src/db/Baker.js";
 
 /* Constants */
 
@@ -385,11 +385,13 @@ client.on("ChatMessageCreated", async (data) => {
     const basics = Object.fromEntries(
       constants.basicIngredients.map((bi) => [bi, 0])
     );
+
     const specials = Object.fromEntries(
       constants.specialIngredients.map((si) => [si, 0])
     );
 
     const gathered = [];
+
     for (const basic in basics) {
       const didGather = constants.chance(0, 100, 80);
       if (didGather) {
@@ -497,9 +499,11 @@ client.on("ChatMessageCreated", async (data) => {
     });
 
     if (!desCookie) {
+
       return await g.sendMsg(message.channelId, {
         content: "There are no recipes for that cookie",
       });
+
     }
 
     return await g.sendMsg(message.channelId, {
@@ -509,6 +513,7 @@ client.on("ChatMessageCreated", async (data) => {
 
   if (message.content.startsWith("/bake")) {
     const player = await baker.findOne({ id: message.createdBy });
+
     if (!player) {
       return await g.sendMsg(message.channelId, {
         embeds: [
@@ -520,6 +525,7 @@ client.on("ChatMessageCreated", async (data) => {
         ],
       });
     }
+
     const args = message.content.split("/bake ");
 
     args.shift();
