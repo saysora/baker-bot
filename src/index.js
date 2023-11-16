@@ -1,11 +1,10 @@
-import { Client } from "gilapi";
-import { Database } from "./Database";
-import mongoose from "mongoose";
 import _ from "lodash";
-import { cookie } from "./db/Cookie";
-import { cookieSeed } from "./seed/CookieSeed";
-import { baker, baker } from "./db/Baker";
 import moment from "moment";
+import Client from "gilapi";
+import { Database } from "./Database.js";
+import { cookie } from "./db/Cookie.js";
+//import { cookieSeed } from "./seed/CookieSeed.js";
+import { baker } from "./db/Baker.js";
 
 /* Constants */
 
@@ -146,21 +145,22 @@ const paginate = (array, pagesize, pagenum) => {
   return array.slice((pagenum - 1) * pagesize, pagenum * pagesize);
 };
 
-const db = new Database();
+new Database();
 
 const { client, gilapi: g } = new Client(process.env.TOKEN);
 
 client.on("open", async () => {
   console.log("I am alive!");
-  db.connect();
-  for (const c of cookieSeed) {
-    const theCookie = await cookie.findOne({ id: c.id });
-    if (theCookie) continue;
-    await cookie.create(c);
-    console.log(`${c.name} created`);
-  }
 
-  const { member } = await g.getMember(
+  // Fill in cookie data
+  // for (const c of cookieSeed) {
+  //   const theCookie = await cookie.findOne({ id: c.id });
+  //   if (theCookie) continue;
+  //   await cookie.create(c);
+  //   console.log(`${c.name} created`);
+  // }
+
+  const member = await g.getMember(
     process.env.SERVER,
     process.env.BOTUSERID
   );
@@ -170,7 +170,6 @@ client.on("open", async () => {
 
 client.on("close", async () => {
   client.reconnect();
-  db.disconnect();
 });
 
 client.on("ChatMessageCreated", async (data) => {
@@ -202,7 +201,9 @@ client.on("ChatMessageCreated", async (data) => {
           text: "Use the /begin command to start baking",
         },
       };
+
       await g.delMsg(message.channelId, message.id);
+
       return await g.sendMsg(message.channelId, {
         embeds: [embed],
       });
@@ -358,9 +359,9 @@ client.on("ChatMessageCreated", async (data) => {
     }
 
     const timeDiff = moment(
-      player.lastIngredientRoll ?? moment().subtract(15, "minutes")
+      player.lastIngredientRoll ?? moment().subtract(process.env.TIME, "minutes")
     )
-      .add(15, "minutes")
+      .add(process.env.TIME, "minutes")
       .diff(moment(), "minutes");
 
     if (timeDiff > 0) {
@@ -520,7 +521,9 @@ client.on("ChatMessageCreated", async (data) => {
       });
     }
     const args = message.content.split("/bake ");
+
     args.shift();
+
     if (args.length < 1) {
       return await g.sendMsg(message.channelId, {
         embeds: [
@@ -534,6 +537,7 @@ client.on("ChatMessageCreated", async (data) => {
         ],
       });
     }
+
     const wantedCookie = args[0];
 
     let desCookie = await cookie.findOne({
@@ -601,8 +605,9 @@ client.on("ChatMessageCreated", async (data) => {
   }
 
   if (message.content == "/pantry") {
-    const { member } = await g.getMember(serverId, message.createdBy);
+    const member = await g.getMember(serverId, message.createdBy);
     const player = await baker.findOne({ id: message.createdBy });
+
     if (!player) {
       return await g.sendMsg(message.channelId, {
         embeds: [

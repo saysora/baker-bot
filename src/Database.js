@@ -1,42 +1,46 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose';
+import 'dotenv/config';
 
 const url = process.env.MONGODB_URL;
-const mongodb = process.env.MONGODB;
-const user = process.env.MONGODB_USER;
-const pass = process.env.MONGODB_PASS;
-const auth = process.env.MONGO_AUTH;
+const dbname = process.env.DB_NAME;
+const user = process.env.DB_USER;
+const pass = process.env.DB_PASS;
+const auth = process.env.DB_AUTH;
 
-const mongostring = `mongodb://${url}/${mongodb}`;
+const mongostring = `mongodb://${url}/${dbname}`;
 
 export class Database {
-  db;
+  conn;
 
   constructor() {
-    this.db = mongoose.connection;
+    this.connect();
   }
 
   connect() {
     mongoose.connect(mongostring, {
       authSource: auth,
       user,
-      pass,
+      pass
     });
 
-    const db = mongoose.connection;
-    this.db = db;
+    this.conn = mongoose.connection;
 
-    db.on("error", console.error.bind("Connection error:"));
-    db.once("open", () => {
-      console.log(`Connected to ${mongodb}`);
-    });
+    this.conn.on('error', console.error.bind("Connection Error: "));
+    this.conn.once('open', () => {
+      console.log(`Connected to db: ${dbname}`);
+    })
   }
 
   disconnect() {
-    this.db.close();
+    this.conn.close();
   }
 
   reconnect() {
-    this.db.close();
-    this.connect();
+    this.disconnect();
+    setTimeout(() => {
+      this.connect();
+    }, 1000)
   }
+
 }
+
