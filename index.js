@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import _ from "lodash";
 import moment from "moment";
 import Client from "gilapi";
@@ -19,6 +20,7 @@ const commands = [
   `\`${prefix}recipe <cookie alias>\` - List the necessary ingredients for the cookie`,
   `\`${prefix}pantry\` - View all your current ingredients and baked cookies`,
   `\`${prefix}gather\` - Randomly gather ingredients necessary for baking (can only be used at least 15 minutes after the last gather command)`,
+  `\`${prefix}cd\` - Checks how long until you can gather again`,
   `\`${prefix}bake <cookie alias>\` - Bakes a cookie provided you have the ingredients`,
   `\`${prefix}lb\` - Shows the current baker leaderboard`,
 ];
@@ -62,7 +64,7 @@ const constants = {
     "snickerdoodle_cookie",
     "macadamia_nut_cookie",
   ],
-  time: 15,
+  time: process.env.TIME,
   chance: (min, max, under) => {
     min = Math.ceil(min);
     max = Math.ceil(max);
@@ -178,7 +180,7 @@ client.on("ChatMessageCreated", async (data) => {
   if (message.createdBy == process.env.BOTUSERID) return;
 
   if (message.createdBy == "x4oJZXoA") {
-    if (message.content == "/lore") {
+    if (message.content == `${prefix}lore`) {
       const embed = {
         title: "The Moogle Bakery",
         color: constants.error,
@@ -212,7 +214,7 @@ client.on("ChatMessageCreated", async (data) => {
 
   if (message.channelId !== process.env.GAMECHANNEL) return;
 
-  if (message.content.startsWith("/lb")) {
+  if (message.content.startsWith(`${prefix}lb`)) {
     const players = await baker.find().sort([["score", "desc"]]);
 
     let args = message.content.split(" ");
@@ -285,7 +287,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content == "/begin") {
+  if (message.content == `${prefix}begin`) {
     let theBaker = await baker.findOne({ id: message.createdBy });
 
     if (theBaker) {
@@ -315,7 +317,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content == "/help") {
+  if (message.content == `${prefix}help`) {
     const player = await baker.findOne({ id: message.createdBy });
 
     if (!player) {
@@ -343,7 +345,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content == "/gather") {
+  if (message.content == `${prefix}gather`) {
     const player = await baker.findOne({ id: message.createdBy });
 
     if (!player) {
@@ -359,9 +361,9 @@ client.on("ChatMessageCreated", async (data) => {
     }
 
     const timeDiff = moment(
-      player.lastIngredientRoll ?? moment().subtract(process.env.TIME, "minutes")
+      player.lastIngredientRoll ?? moment().subtract(constants.time, "minutes")
     )
-      .add(process.env.TIME, "minutes")
+      .add(constants.time, "minutes")
       .diff(moment(), "minutes");
 
     if (timeDiff > 0) {
@@ -440,7 +442,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content == "/recipes") {
+  if (message.content == `${prefix}recipes`) {
     const player = await baker.findOne({ id: message.createdBy });
     if (!player) {
       return await g.sendMsg(message.channelId, {
@@ -476,7 +478,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content.startsWith("/recipe ")) {
+  if (message.content.startsWith(`${prefix}recipe `)) {
     const player = await baker.findOne({ id: message.createdBy });
     if (!player) {
       return await g.sendMsg(message.channelId, {
@@ -490,7 +492,7 @@ client.on("ChatMessageCreated", async (data) => {
       });
     }
 
-    const args = message.content.split("/recipe ");
+    const args = message.content.split(`${prefix}recipe `);
     args.shift();
     const wantedCookie = args[0];
 
@@ -511,7 +513,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content.startsWith("/bake")) {
+  if (message.content.startsWith(`${prefix}bake`)) {
     const player = await baker.findOne({ id: message.createdBy });
 
     if (!player) {
@@ -526,7 +528,7 @@ client.on("ChatMessageCreated", async (data) => {
       });
     }
 
-    const args = message.content.split("/bake ");
+    const args = message.content.split(`${prefix}bake `);
 
     args.shift();
 
@@ -610,7 +612,7 @@ client.on("ChatMessageCreated", async (data) => {
     });
   }
 
-  if (message.content == "/pantry") {
+  if (message.content == `${prefix}pantry`) {
     const member = await g.getMember(serverId, message.createdBy);
     const player = await baker.findOne({ id: message.createdBy });
 
@@ -650,6 +652,7 @@ client.on("ChatMessageCreated", async (data) => {
     embed.description += "\n**Ingredients:**\n";
 
     const playerIngredients = _.pick(player.ingredients, constants.ingredients);
+
     for (const ingredient in playerIngredients) {
       embed.fields.push({
         name: `${ingredient.replaceAll("_", " ").toLowerCase()}`,
@@ -657,8 +660,78 @@ client.on("ChatMessageCreated", async (data) => {
         inline: true,
       });
     }
+
+    // Add CD timer to footer
+    
+    const timeDiff = moment(
+      player.lastIngredientRoll ?? moment().subtract(constants.time, "minutes")
+    )
+      .add(constants.time, "minutes")
+      .diff(moment(), "minutes");
+
+      const timeUntil = moment(player.lastIngredientRoll)
+        .add(constants.time, "minutes")
+        .fromNow();
+
+    if(timeDiff <= 0) {
+      embed.footer = {
+        text: "You can gather."
+      }
+    } else {
+      embed.footer = {
+        text: `You can gather again ${timeUntil}.`
+      }
+    }
+
     return await g.sendMsg(message.channelId, {
       embeds: [embed],
+    });
+  }
+
+  if(message.content == `${prefix}cd`) {
+
+    const player = await baker.findOne({ id: message.createdBy });
+
+    if (!player) {
+      return await g.sendMsg(message.channelId, {
+        embeds: [
+          {
+            title: `You are not baking yet`,
+            description: "Use the `/begin` command to start baking",
+            color: constants.error,
+          },
+        ],
+        replyMessageIds: [message.id]
+      });
+    }
+
+    const embed = {
+      description: "",
+      color: constants.bag,
+    };
+
+    const timeDiff = moment(
+      player.lastIngredientRoll ?? moment().subtract(constants.time, "minutes")
+    )
+      .add(constants.time, "minutes")
+      .diff(moment(), "minutes");
+
+      const timeUntil = moment(player.lastIngredientRoll)
+        .add(constants.time, "minutes")
+        .fromNow();
+
+    if(timeDiff <= 0) {
+      embed.description = "You can gather.";
+      embed.color = constants.success;
+    } else {
+      embed.description = `You can gather again ${timeUntil}.`;
+      embed.color = constants.error;
+    }
+
+    return await g.sendMsg(message.channelId, {
+      embeds: [embed],
+      isSilent: true,
+      replyMessageIds: [message.id]
     });
   }
 });
