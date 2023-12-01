@@ -154,14 +154,6 @@ const { client, gilapi: g } = new Client(process.env.TOKEN);
 client.on("open", async () => {
   console.log("I am alive!");
 
-  // Fill in cookie data
-  // for (const c of cookieSeed) {
-  //   const theCookie = await cookie.findOne({ id: c.id });
-  //   if (theCookie) continue;
-  //   await cookie.create(c);
-  //   console.log(`${c.name} created`);
-  // }
-
   const member = await g.getMember(
     process.env.SERVER,
     process.env.BOTUSERID
