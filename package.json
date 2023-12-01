@@ -17,9 +17,9 @@
     "gilapi": "github:saysora/gilapi",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
-    "mongoose": "^6.12.3"
+    "mongoose": "^8.0.2"
   },
   "devDependencies": {
-    "eslint": "^8.53.0"
+    "eslint": "^8.54.0"
   }
 }
