@@ -10,7 +10,7 @@ import {hasIngredients, useIngredients} from '../helpers/ingredients';
 import {eq} from 'drizzle-orm';
 import {bakerTable} from '../db/schema/baker';
 import {cookies} from '../helpers/cookies';
-import {bakedResult} from '../helpers/embeds';
+import {bakedResult, errorEmbed, missingEmbed} from '../helpers/embeds';
 
 export const bakeCommand: Command = {
   cmd: new SlashCommandBuilder()
@@ -47,9 +47,8 @@ export const bakeCommand: Command = {
     const theRecipe = cookies.find(c => c.id === recipe);
 
     if (!theRecipe) {
-      // TODO: Update to embed
       await i.editReply({
-        content: 'No recipe',
+        embeds: [errorEmbed('## Could not find recipe')],
       });
       return;
     }
@@ -62,7 +61,13 @@ export const bakeCommand: Command = {
 
     if (!ingredientCheck.isEnough) {
       await i.editReply({
-        content: 'Not enough ingredients, bitch',
+        embeds: [
+          missingEmbed(
+            theRecipe.name,
+            amount,
+            ingredientCheck.missingIngredients,
+          ),
+        ],
       });
       return;
     }
@@ -73,6 +78,7 @@ export const bakeCommand: Command = {
       amount,
     );
 
+    // Calculate and store the total rather than calculateing it at request time
     const newScore = player.score + theRecipe.value * amount;
 
     await db

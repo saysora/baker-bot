@@ -5,7 +5,7 @@ import {stripUnderS} from './general';
 import {canGather} from './game';
 import {Cookie, Ingredients} from '../types';
 
-export function cookieEmbed(recipe: Cookie) {
+export function recipeEmbed(recipe: Cookie) {
   const embed = new EmbedBuilder()
     .setThumbnail(recipe.image)
     .setColor(Color.recipe)
@@ -14,7 +14,7 @@ export function cookieEmbed(recipe: Cookie) {
     });
 
   let description = `## 📒 ${recipe.name}\n`;
-  description += `### Aliases: \n${recipe.aliases?.join(', ')}\n### Value: **${recipe.value}**\n### Ingredients: `;
+  description += `### Aliases: \n${recipe.aliases?.join(', ')}\n### 🏆 Score : **${recipe.value}**\n### 📝 Ingredients: `;
 
   embed.setDescription(description);
   const fields = [];
@@ -95,6 +95,32 @@ export function pantryEmbed(
   return embed;
 }
 
+export function missingEmbed(
+  name: string,
+  amount: number,
+  missingIng: {name: string; needed: number; current: number}[],
+) {
+  const embed = new EmbedBuilder()
+    .setDescription(
+      `### Uh oh!\nYou are missing ingredients for ${amount} ${name}${amount > 1 ? 's' : ''}\n### 📒 Needed Ingredients:\n`,
+    )
+    .setColor(Color.error);
+
+  const fields = [];
+
+  for (const ing of missingIng) {
+    fields.push({
+      name: `${stripUnderS(ing.name)}`,
+      value: `${ing.needed}`,
+      inline: true,
+    });
+  }
+
+  embed.setFields(fields);
+
+  return embed;
+}
+
 export function bakedResult(recipe: Cookie, score: number, amount: number) {
   const embed = new EmbedBuilder()
     .setDescription(
@@ -105,6 +131,20 @@ export function bakedResult(recipe: Cookie, score: number, amount: number) {
     .setFooter({
       text: `Your 🍪 score is now ${score}`,
     });
+
+  return embed;
+}
+
+export function errorEmbed(message: string, footer?: string) {
+  const embed = new EmbedBuilder()
+    .setDescription(message)
+    .setColor(Color.error);
+
+  if (footer) {
+    embed.setFooter({
+      text: footer,
+    });
+  }
 
   return embed;
 }

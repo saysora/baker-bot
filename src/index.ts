@@ -1,8 +1,5 @@
 // TODO:
-// + Need to finish porting the embeds (check TODOS)
 // + Need to finish importing legacy commands
-//   - recipes
-//   - recipe
 //   - lb
 // + Add in the config db item and set it up
 // + And then profit???
@@ -15,7 +12,7 @@ import {
   REST,
   Routes,
 } from 'discord.js';
-import {cookieEmbed} from './helpers/embeds';
+import {recipeEmbed} from './helpers/embeds';
 import {cmdCollection, cmds} from './commands';
 import {cookies} from './helpers/cookies';
 
@@ -117,7 +114,7 @@ client.on(Events.MessageCreate, async msg => {
     if (!recipeLookup) return;
 
     await msg.reply({
-      embeds: [cookieEmbed(recipeLookup)],
+      embeds: [recipeEmbed(recipeLookup)],
     });
   }
 });

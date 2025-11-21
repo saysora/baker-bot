@@ -32,11 +32,12 @@ export const cookieList = [
 
 export const commands = [
   '`/help` - Lists all commands',
-  '`/recipes` - List all cookies that can be baked',
-  '`/recipe <cookie alias>` - List the necessary ingredients for the cookie',
+  '`/recipe <cookie name|alias>` - List the necessary ingredients for the cookie',
   '`/pantry` - View all your current ingredients and baked cookies',
+  // TODO:
+  // Remove the hardcoded cooldown time
   '`/gather` - Randomly gather ingredients necessary for baking (can only be used at least 15 minutes after the last gather command)',
-  '`/bake <cookie alias>` - Bakes a cookie provided you have the ingredients',
+  '`/bake <cookie name|alias> <amount>` - Bakes <amount> of cookies provided you have the ingredients',
   '`/lb` - Shows the current baker leaderboard',
 ];
 
