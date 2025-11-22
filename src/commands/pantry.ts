@@ -5,7 +5,7 @@ import {
   MessageFlags,
   SlashCommandBuilder,
 } from 'discord.js';
-import {getPlayer, makePlayer} from '../helpers/game';
+import {findOrMakeConfig, getPlayer, makePlayer} from '../helpers/game';
 import {pantryEmbed} from '../helpers/embeds';
 
 export const pantryCommand = {
@@ -29,8 +29,10 @@ export const pantryCommand = {
       player = await makePlayer(i.member as GuildMember);
     }
 
+    const config = await findOrMakeConfig();
+
     await i.editReply({
-      embeds: [pantryEmbed(player, i.user)],
+      embeds: [pantryEmbed(player, i.user, config)],
     });
   },
 };

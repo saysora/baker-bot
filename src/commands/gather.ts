@@ -4,14 +4,20 @@ import {
   InteractionContextType,
   SlashCommandBuilder,
 } from 'discord.js';
-import {canGather, makePlayer} from '../helpers/game';
+import {
+  canGather,
+  findOrMakeConfig,
+  getCooldown,
+  inGameTimeline,
+  makePlayer,
+} from '../helpers/game';
 import {basicIngredients, randomChance, specialIngredients} from '../constants';
 import {mergeIngredients} from '../helpers/ingredients';
 import {bakerTable} from '../db/schema/baker';
 import db from '../db';
 import {eq} from 'drizzle-orm';
 import moment = require('moment');
-import {errorEmbed, gatheredEmbed} from '../helpers/embeds';
+import {errorEmbed, gatherEmbed} from '../helpers/embeds';
 import {Ingredients} from '../types';
 
 export const gatherCommand = {
@@ -21,14 +27,31 @@ export const gatherCommand = {
     .setContexts(InteractionContextType.Guild),
   action: async (i: ChatInputCommandInteraction) => {
     await i.deferReply();
+
+    const config = await findOrMakeConfig();
+    const inTimeline = inGameTimeline(config);
+
+    if (!inTimeline.allowed) {
+      let reason = 'The game has not begun yet!';
+      if (inTimeline.time === 'after') {
+        reason = 'The game is over';
+      }
+      await i.editReply({
+        embeds: [errorEmbed(`### Uh oh\n${reason}`)],
+      });
+      return;
+    }
+
     const player = await makePlayer(i.member as GuildMember);
 
     if (!player) {
       throw new Error('Could not find that player, please contact saysora');
     }
 
-    const playerGather = canGather(player.lastIngredientRoll);
-    if (player.gatherCount >= 1 && !playerGather.can) {
+    const {cooldownActive} = getCooldown(config);
+    const playerGather = canGather(config, player.lastIngredientRoll);
+
+    if (cooldownActive && player.gatherCount >= 1 && !playerGather.can) {
       await i.editReply({
         embeds: [
           errorEmbed(
@@ -64,7 +87,7 @@ export const gatherCommand = {
       .where(eq(bakerTable.id, player.id));
 
     await i.editReply({
-      embeds: [gatheredEmbed(gatheredSet)],
+      embeds: [gatherEmbed(gatheredSet, updatedList)],
     });
   },
 };

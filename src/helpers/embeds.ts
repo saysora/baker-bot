@@ -2,8 +2,10 @@ import {EmbedBuilder, User} from 'discord.js';
 import {Color} from '../constants';
 import {bakerTable} from '../db/schema/baker';
 import {stripUnderS} from './general';
-import {canGather} from './game';
+import {boldText, canGather, LBRes} from './game';
 import {Cookie, Ingredients} from '../types';
+import {addSpaces, spaceChar} from './addSpaces';
+import {configTable} from '../db/schema/config';
 
 export function recipeEmbed(recipe: Cookie) {
   const embed = new EmbedBuilder()
@@ -32,25 +34,45 @@ export function recipeEmbed(recipe: Cookie) {
   return embed;
 }
 
-export function gatheredEmbed(newIngredients: Record<string, number>) {
-  const embed = new EmbedBuilder()
-    .setTitle('Gathering Results')
-    .setColor(Color.recipe);
+export function gatherEmbed(
+  newIngredients: Record<string, number>,
+  newTotals: Ingredients,
+) {
+  const embed = new EmbedBuilder().setColor(Color.recipe);
 
-  let description = '';
+  let description = '### 🔎 Gather Results\n';
 
   for (const ing in newIngredients) {
-    description += `${stripUnderS(ing)} - **${newIngredients[ing]}**\n`;
+    const ingredientCount = newIngredients[ing];
+    if (ingredientCount > 0) {
+      description += `${stripUnderS(ing)} +${boldText(2, ingredientCount, String(ingredientCount))}\n`;
+    }
   }
 
+  description += '### 📒 Ingredients\n';
+
   embed.setDescription(description);
+
+  const fields = [];
+
+  for (const ingredient in newTotals) {
+    const ing = ingredient as keyof Ingredients;
+    fields.push({
+      name: `${stripUnderS(ing)}`,
+      value: `${newTotals[ing]}`,
+      inline: true,
+    });
+  }
+
+  embed.setFields(fields);
 
   return embed;
 }
 
 export function pantryEmbed(
   player: typeof bakerTable.$inferSelect,
-  user?: User,
+  user: User,
+  config: typeof configTable.$inferInsert,
 ) {
   const embed = new EmbedBuilder().setColor(Color.bag);
 
@@ -82,7 +104,7 @@ export function pantryEmbed(
   }
 
   let footerMessage = 'You can gather';
-  const playerGather = canGather(player.lastIngredientRoll);
+  const playerGather = canGather(config, player.lastIngredientRoll);
 
   if (!playerGather.can) {
     footerMessage = `Cannot gather for ${playerGather.until}`;
@@ -131,6 +153,29 @@ export function bakedResult(recipe: Cookie, score: number, amount: number) {
     .setFooter({
       text: `Your 🍪 score is now ${score}`,
     });
+
+  return embed;
+}
+
+export function lbEmbed(board: LBRes) {
+  const embed = new EmbedBuilder().setColor(Color.board);
+
+  let description = '### 🍪 Cookie Champions\n';
+  const scoreHeader = `🏆 Score${spaceChar.repeat(1)}`;
+  const userHeader = `🧑‍🍳 Baker${spaceChar.repeat(3)}`;
+
+  description += `${scoreHeader} | ${userHeader}\n`;
+
+  for (const player of board.players) {
+    const playerString = `<@${player.id}>`;
+    const playerScore = `${player.score}`;
+    description += `${addSpaces(scoreHeader, playerScore)}|${addSpaces(userHeader, playerString)}`;
+  }
+
+  embed.setDescription(description);
+  embed.setFooter({
+    text: `Page ${board.page}/${board.pages}`,
+  });
 
   return embed;
 }

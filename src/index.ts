@@ -1,7 +1,5 @@
 // TODO:
-// + Need to finish importing legacy commands
-//   - lb
-// + Add in the config db item and set it up
+// + Setup config commands for admin
 // + And then profit???
 import {
   Client,
@@ -12,9 +10,9 @@ import {
   REST,
   Routes,
 } from 'discord.js';
-import {recipeEmbed} from './helpers/embeds';
 import {cmdCollection, cmds} from './commands';
 import {cookies} from './helpers/cookies';
+import {initGame} from './helpers/game';
 
 const reqVars = ['TOKEN', 'CLIENT_ID'];
 const errors = [];
@@ -65,11 +63,14 @@ void (async () => {
 client.once(Events.ClientReady, async rc => {
   console.log(`${rc.user.username} Online`);
   console.log(`Loaded ${cookies.length} cookies into cache`);
+  await initGame();
 });
 
 client.on(Events.InteractionCreate, async inter => {
+  if (process.env.SERVER_ID && inter.guildId !== process.env.SERVER_ID) return;
   if (!inter.isChatInputCommand()) return;
   if (inter.user.bot) return;
+
   const cmd = cmdCollection.get(inter.commandName);
 
   if (!cmd) {
@@ -98,24 +99,6 @@ client.on(Events.InteractionCreate, async inter => {
         flags: MessageFlags.Ephemeral,
       });
     }
-  }
-});
-
-client.on(Events.MessageCreate, async msg => {
-  if (msg.author.bot) return;
-
-  if (msg.content.startsWith('/recipe ')) {
-    const wantedRecipe = msg.content.split('/recipe ')?.[1];
-
-    if (!wantedRecipe) return;
-
-    const recipeLookup = cookies.find(c => c.aliases?.includes(wantedRecipe));
-
-    if (!recipeLookup) return;
-
-    await msg.reply({
-      embeds: [recipeEmbed(recipeLookup)],
-    });
   }
 });
 

@@ -4,12 +4,14 @@ import {gatherCommand} from './gather';
 import {pantryCommand} from './pantry';
 import {bakeCommand} from './bake';
 import {recipeCommand} from './recipe';
+import {leaderboardCommand} from './leaderboard';
 const cmdCollection = new Collection<string, Function>();
 
 const cmds = [
   bakeCommand,
   gatherCommand,
   helpCommand,
+  leaderboardCommand,
   pantryCommand,
   recipeCommand,
 ];
