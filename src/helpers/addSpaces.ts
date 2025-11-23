@@ -1,5 +1,4 @@
-//export const spaceChar = 'ㅤ';
-export const spaceChar = '⠀';
+export const spaceChar = '⠀'; // Special character that discord honors for repeated spaces
 
 export function addSpaces(ref: string, current: string, additional = 0) {
   const refSize = [...ref].length;

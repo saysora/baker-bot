@@ -5,6 +5,7 @@ export enum Color {
   bag = '#74b9ff',
   list = '#fab1a0',
   board = '#a29bfe',
+  config = '#5352ed',
 }
 
 export const basicIngredients = ['flour', 'milk', 'eggs', 'sugar', 'butter'];

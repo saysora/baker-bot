@@ -11,6 +11,6 @@ export const configTable = sqliteTable('config', {
   datesEnabled: int({mode: 'boolean'}).default(false).notNull(),
 
   cooldownTime: int().default(15).notNull(),
-  cooldownUnit: text().default('m').$type<CooldownUnit>(),
+  cooldownUnit: text().default('m').$type<CooldownUnit>().notNull(),
   cooldownActive: int({mode: 'boolean'}).default(false).notNull(),
 });

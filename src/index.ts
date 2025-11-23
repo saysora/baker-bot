@@ -1,6 +1,3 @@
-// TODO:
-// + Setup config commands for admin
-// + And then profit???
 import {
   Client,
   Events,

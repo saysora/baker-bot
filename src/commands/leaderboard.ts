@@ -1,8 +1,4 @@
-import {
-  InteractionContextType,
-  MessageFlags,
-  SlashCommandBuilder,
-} from 'discord.js';
+import {InteractionContextType, SlashCommandBuilder} from 'discord.js';
 import {Command} from '../types';
 import {getLb} from '../helpers/game';
 import {lbEmbed} from '../helpers/embeds';
@@ -21,9 +17,7 @@ export const leaderboardCommand: Command = {
   action: async i => {
     const page = i.options.getNumber('page') ?? 1;
 
-    await i.deferReply({
-      flags: MessageFlags.Ephemeral,
-    });
+    await i.deferReply();
 
     const board = await getLb({page});
 

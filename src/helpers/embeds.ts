@@ -193,3 +193,28 @@ export function errorEmbed(message: string, footer?: string) {
 
   return embed;
 }
+
+// Admin Embeds
+export function configEmbed(
+  config: typeof configTable.$inferInsert,
+  msg?: string,
+) {
+  const embed = new EmbedBuilder().setColor(Color.config);
+
+  let description = '### Config';
+
+  if (msg) {
+    description = msg;
+  }
+
+  description += '\n';
+
+  for (const k in config) {
+    const key = k as keyof typeof config;
+    description += `\`${key}\`: ${config[key]}\n`;
+  }
+
+  embed.setDescription(description);
+
+  return embed;
+}

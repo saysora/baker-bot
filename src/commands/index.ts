@@ -5,9 +5,11 @@ import {pantryCommand} from './pantry';
 import {bakeCommand} from './bake';
 import {recipeCommand} from './recipe';
 import {leaderboardCommand} from './leaderboard';
+import {adminConfigCommand} from './admin.config';
 const cmdCollection = new Collection<string, Function>();
 
 const cmds = [
+  adminConfigCommand,
   bakeCommand,
   gatherCommand,
   helpCommand,
