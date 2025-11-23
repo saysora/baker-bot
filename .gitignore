@@ -1,5 +1,4 @@
-dist
-.parcel-cache
 node_modules
+
 .env
-package-lock.json
+local.db

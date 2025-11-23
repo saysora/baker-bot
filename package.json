@@ -1,25 +1,39 @@
 {
-  "name": "moggel",
-  "version": "1.0.1",
+  "name": "bake-bot",
+  "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
-    "start": "node index.js",
-    "watch": "nodemon",
-    "lint": "eslint"
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "gts lint",
+    "clean": "gts clean",
+    "compile": "tsc",
+    "fix": "gts fix",
+    "prepare": "npm run compile",
+    "pretest": "npm run compile",
+    "posttest": "npm run lint"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "dotenv": "^16.3.1",
-    "gilapi": "github:saysora/gilapi",
-    "lodash": "^4.17.21",
-    "moment": "^2.29.4",
-    "mongoose": "^8.0.2"
-  },
+  "type": "commonjs",
   "devDependencies": {
-    "eslint": "^8.54.0"
+    "@types/node": "^22.7.5",
+    "drizzle-kit": "^0.31.7",
+    "gts": "^6.0.2",
+    "tsc-watch": "^7.2.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.6.3"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.15.15",
+    "discord.js": "^14.24.2",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.7",
+    "moment": "^2.30.1"
   }
 }
