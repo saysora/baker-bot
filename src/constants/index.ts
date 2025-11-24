@@ -39,7 +39,7 @@ export const commands = [
   // Remove the hardcoded cooldown time
   '`/gather` - Randomly gather ingredients necessary for baking (can only be used at least 15 minutes after the last gather command)',
   '`/bake <cookie name|alias> <amount>` - Bakes <amount> of cookies provided you have the ingredients',
-  '`/lb` - Shows the current baker leaderboard',
+  '`/leaderboard` - Shows the current baker leaderboard',
 ];
 
 export function randomChance(min: number, max: number) {

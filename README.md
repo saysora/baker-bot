@@ -1,21 +1,12 @@
-## Moggel The Christmas Loving Moogle
+## The Christmas Cookie Baking Bot
 
-A simple moogle to make a simple baking game for the holidays.
+A simple and fun bot for having a cookie bake off!
 
-Example .env file
+````
+Copy the env and fill in the necessary fields
+```bash
+cp env.example .env
+````
 
-```
-#GilAPI
-TOKEN=
-SERVER=
-BOTUSERID=
-
-# GAME VARIABLES
-GAMECHANNEL=
-ENDDATE=
-TIME=
-
-#MONGO
-DBURL=
-DBNAME=
-```
+Run the bot with `npm run start`
+And that's all there is to it. Happy baking

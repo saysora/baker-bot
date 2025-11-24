@@ -6,10 +6,12 @@ import {bakeCommand} from './bake';
 import {recipeCommand} from './recipe';
 import {leaderboardCommand} from './leaderboard';
 import {adminConfigCommand} from './admin.config';
+import {adminStartCommand} from './admin.start';
 const cmdCollection = new Collection<string, Function>();
 
 const cmds = [
   adminConfigCommand,
+  adminStartCommand,
   bakeCommand,
   gatherCommand,
   helpCommand,
