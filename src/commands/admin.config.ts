@@ -98,6 +98,7 @@ export const adminConfigCommand: Command = {
         const gameChannel = i.options.getString('game-channel') ?? undefined;
         const startDate = i.options.getString('start-date') ?? undefined;
         const endDate = i.options.getString('end-date') ?? undefined;
+        const datesEnabled = i.options.getBoolean('dates-enabled') ?? undefined;
 
         const cooldownTime = i.options.getNumber('cooldown-time') ?? undefined;
         const cooldownUnit = i.options.getString('cooldown-unit') ?? undefined;
@@ -124,6 +125,13 @@ export const adminConfigCommand: Command = {
           values = {
             ...values,
             endDate: returnNull(endDate, moment.utc, 'toDate'),
+          };
+        }
+
+        if (datesEnabled !== undefined) {
+          values = {
+            ...values,
+            datesEnabled: datesEnabled,
           };
         }
 
