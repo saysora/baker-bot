@@ -87,7 +87,7 @@ export const gatherCommand = {
       .where(eq(bakerTable.id, player.id));
 
     await i.editReply({
-      embeds: [gatherEmbed(gatheredSet, updatedList)],
+      embeds: [gatherEmbed(i.user, gatheredSet, updatedList)],
     });
   },
 };
