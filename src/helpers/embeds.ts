@@ -42,7 +42,7 @@ export function gatherEmbed(
     .setColor(Color.recipe)
     .setThumbnail(user.displayAvatarURL());
 
-  let description = `### 🔎 <@${user.id}>'s\n ### Gather Results\n`;
+  let description = `### 🔎 Gather Results\nFor <@${user.id}>\n`;
 
   for (const ing in newIngredients) {
     const ingredientCount = newIngredients[ing];
