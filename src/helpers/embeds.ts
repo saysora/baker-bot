@@ -37,13 +37,12 @@ export function recipeEmbed(recipe: Cookie) {
 export function gatherEmbed(
   user: User,
   newIngredients: Record<string, number>,
-  newTotals: Ingredients,
 ) {
   const embed = new EmbedBuilder()
     .setColor(Color.recipe)
     .setThumbnail(user.displayAvatarURL());
 
-  let description = `### 🔎 <@${user.id}>'s Gather Results\n`;
+  let description = `### 🔎 <@${user.id}>'s\n ### Gather Results\n`;
 
   for (const ing in newIngredients) {
     const ingredientCount = newIngredients[ing];
@@ -55,19 +54,6 @@ export function gatherEmbed(
   description += '### 📒 Ingredients\n';
 
   embed.setDescription(description);
-
-  const fields = [];
-
-  for (const ingredient in newTotals) {
-    const ing = ingredient as keyof Ingredients;
-    fields.push({
-      name: `${stripUnderS(ing)}`,
-      value: `${newTotals[ing]}`,
-      inline: true,
-    });
-  }
-
-  embed.setFields(fields);
 
   return embed;
 }
