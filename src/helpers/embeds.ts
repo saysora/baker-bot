@@ -51,9 +51,10 @@ export function gatherEmbed(
     }
   }
 
-  description += '### 📒 Ingredients\n';
-
   embed.setDescription(description);
+  embed.setFooter({
+    text: 'Use `/pantry` to check your ingredients',
+  });
 
   return embed;
 }
