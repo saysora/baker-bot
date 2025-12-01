@@ -53,7 +53,7 @@ export function gatherEmbed(
 
   embed.setDescription(description);
   embed.setFooter({
-    text: 'Use `/pantry` to check your ingredients',
+    text: 'Use /pantry to check your ingredients',
   });
 
   return embed;
