@@ -169,7 +169,7 @@ export function lbEmbed(board: LBRes) {
   for (const player of board.players) {
     const playerString = `<@${player.id}>`;
     const playerScore = `${player.score}`;
-    description += `${addSpaces(scoreHeader, playerScore)}|${addSpaces(userHeader, playerString)}`;
+    description += `${addSpaces(scoreHeader, playerScore)}|${addSpaces(userHeader, playerString)}\n`;
   }
 
   embed.setDescription(description);
