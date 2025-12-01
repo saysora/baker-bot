@@ -1,4 +1,5 @@
 import {
+  ActivityType,
   Client,
   Events,
   GatewayIntentBits,
@@ -61,6 +62,9 @@ client.once(Events.ClientReady, async rc => {
   console.log(`${rc.user.username} Online`);
   console.log(`Loaded ${cookies.length} cookies into cache`);
   await initGame();
+  rc.user.setActivity('Baking away', {
+    type: ActivityType.Custom,
+  });
 });
 
 client.on(Events.InteractionCreate, async inter => {
